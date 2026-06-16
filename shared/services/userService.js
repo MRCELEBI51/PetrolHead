@@ -2,45 +2,11 @@ import axios from 'axios';
 import { BASE_URL } from '../constants/index.js';
 import { getHeaders } from './authService.js';
 
-export const getEvents = async (page = 1, token) => {
-  try {
-    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
-    const response = await axios.get(`${BASE_URL}/events?page=${page}`, { headers });
-    return { data: response.data, error: null };
-  } catch (error) {
-    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
-  }
-};
-
-export const getEventById = async (id, token) => {
-  try {
-    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
-    const response = await axios.get(`${BASE_URL}/events/${id}`, { headers });
-    return { data: response.data, error: null };
-  } catch (error) {
-    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
-  }
-};
-
-export const createEvent = async (title, location, date, description, category, image, capacity, token) => {
+export const followUser = async (targetId, token) => {
   try {
     const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
     const response = await axios.post(
-      `${BASE_URL}/events`,
-      { title, location, date, description, category, image, capacity },
-      { headers }
-    );
-    return { data: response.data, error: null };
-  } catch (error) {
-    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
-  }
-};
-
-export const joinEvent = async (eventId, token) => {
-  try {
-    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
-    const response = await axios.post(
-      `${BASE_URL}/events/${eventId}/join`,
+      `${BASE_URL}/users/${targetId}/follow`,
       {},
       { headers }
     );
@@ -50,3 +16,42 @@ export const joinEvent = async (eventId, token) => {
   }
 };
 
+export const getFollowing = async (userId, token) => {
+  try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
+    const response = await axios.get(`${BASE_URL}/users/${userId}/following`, { headers });
+    return { data: response.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
+  }
+};
+
+export const getFollowers = async (userId, token) => {
+  try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
+    const response = await axios.get(`${BASE_URL}/users/${userId}/followers`, { headers });
+    return { data: response.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
+  }
+};
+
+export const getUserProfile = async (userId, token) => {
+  try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
+    const response = await axios.get(`${BASE_URL}/users/${userId}`, { headers });
+    return { data: response.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
+  }
+};
+
+export const searchUsers = async (query, token) => {
+  try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
+    const response = await axios.get(`${BASE_URL}/users/search?q=${query}`, { headers });
+    return { data: response.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
+  }
+};

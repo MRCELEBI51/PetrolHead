@@ -1,44 +1,41 @@
 import axios from 'axios';
 import { BASE_URL } from '../constants/index.js';
+import { getHeaders } from './authService.js';
 
-const getHeaders = () => {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
-export const getPosts = async (page = 1) => {
+export const getPosts = async (page = 1, token) => {
   try {
-    const response = await axios.get(`${BASE_URL}/posts?page=${page}`, {
-      headers: getHeaders()
-    });
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
+    const response = await axios.get(`${BASE_URL}/posts?page=${page}`, { headers });
     return { data: response.data, error: null };
   } catch (error) {
-    return { data: null, error: error.response?.data || error.message };
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
   }
 };
 
-export const createPost = async (imageUrl, description) => {
+export const createPost = async (imageUrl, description, token) => {
   try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
     const response = await axios.post(
       `${BASE_URL}/posts`,
       { imageUrl, description },
-      { headers: getHeaders() }
+      { headers }
     );
     return { data: response.data, error: null };
   } catch (error) {
-    return { data: null, error: error.response?.data || error.message };
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
   }
 };
 
-export const likePost = async (postId) => {
+export const likePost = async (postId, token) => {
   try {
+    const headers = token ? { Authorization: `Bearer ${token}` } : await getHeaders();
     const response = await axios.post(
       `${BASE_URL}/posts/${postId}/like`,
       {},
-      { headers: getHeaders() }
+      { headers }
     );
     return { data: response.data, error: null };
   } catch (error) {
-    return { data: null, error: error.response?.data || error.message };
+    return { data: null, error: error.response?.data?.error || error.response?.data || error.message };
   }
 };

@@ -1,35 +1,32 @@
-import { Tabs } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React from 'react';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 
 export default function TabLayout() {
+  const router = useRouter();
+  const token = useSelector((state: any) => state.auth.token);
+  const currentUser = useSelector((state: any) => state.auth.user);
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#E84545',
-        tabBarInactiveTintColor: '#94A3B8',
-        tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopWidth: 1,
-          borderTopColor: '#1E293B',
-          paddingBottom: 4,
-          paddingTop: 4
-        },
-        headerStyle: {
-          backgroundColor: '#0F172A'
-        },
-        headerTintColor: '#F8FAFC',
-        headerTitleStyle: {
-          fontWeight: 'bold'
-        }
+        tabBarActiveTintColor: '#E53935',
+        tabBarInactiveTintColor: '#6B7280',
+        tabBarStyle: styles.tabBar,
+        headerShown: false, // We will render our own header on each page
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Ana Sayfa',
+          title: 'Anasayfa',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          )
+            <Ionicons name="home-outline" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -37,28 +34,94 @@ export default function TabLayout() {
         options={{
           title: 'Forum',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubbles" size={size} color={color} />
-          )
+            <Ionicons name="chatbubbles-outline" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="otoai"
         options={{
-          title: 'OTOAI',
+          title: 'OtoAI',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sparkles" size={size} color={color} />
-          )
+            <Ionicons name="sparkles-outline" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="events"
         options={{
-          title: 'Etkinlik',
+          title: 'Etkinlikler',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
-          )
+            <Ionicons name="calendar-outline" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profil',
+          tabBarIcon: ({ color, focused }) => {
+            if (token && currentUser) {
+              return currentUser.profileImage ? (
+                <Image
+                  source={{ uri: currentUser.profileImage }}
+                  style={[
+                    styles.tabAvatar,
+                    { borderColor: focused ? '#E53935' : '#6B7280' }
+                  ]}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.tabAvatarPlaceholder,
+                    { borderColor: focused ? '#E53935' : '#6B7280' }
+                  ]}
+                >
+                  <Ionicons name="person" size={14} color={color} />
+                </View>
+              );
+            }
+            return <Ionicons name="person-outline" size={24} color={color} />;
+          },
+        }}
+      />
+      <Tabs.Screen
+        name="post"
+        options={{
+          href: null, // Hide unused post tab from navigation
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: '#0D0D0D',
+    borderTopWidth: 1,
+    borderTopColor: '#2A2A2A',
+    height: 60,
+    paddingBottom: 8,
+    paddingTop: 8,
+  },
+  tabBarLabel: {
+    fontFamily: 'System',
+    fontWeight: '600',
+    fontSize: 11,
+  },
+  tabAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  tabAvatarPlaceholder: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    backgroundColor: '#1A1A1A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

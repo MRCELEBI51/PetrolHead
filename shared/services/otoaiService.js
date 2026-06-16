@@ -1,7 +1,57 @@
 import { OTOAI_SYSTEM_PROMPT } from '../constants/index.js';
 
-export const sendMessage = async (apiKey, userMessage, conversationHistory = []) => {
+export const sendMessage = async (apiKey, userMessage, conversationHistory = [], imageUrl = null) => {
   try {
+    const userParts = [];
+    if (imageUrl) {
+      if (Array.isArray(imageUrl)) {
+        imageUrl.forEach((url) => {
+          if (url) {
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+              userParts.push({
+                fileData: {
+                  mimeType: 'image/jpeg',
+                  fileUri: url
+                }
+              });
+            } else {
+              let base64Data = url;
+              if (base64Data.includes(';base64,')) {
+                base64Data = base64Data.split(';base64,').pop();
+              }
+              userParts.push({
+                inlineData: {
+                  mimeType: 'image/jpeg',
+                  data: base64Data
+                }
+              });
+            }
+          }
+        });
+      } else {
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+          userParts.push({
+            fileData: {
+              mimeType: 'image/jpeg',
+              fileUri: imageUrl
+            }
+          });
+        } else {
+          let base64Data = imageUrl;
+          if (base64Data.includes(';base64,')) {
+            base64Data = base64Data.split(';base64,').pop();
+          }
+          userParts.push({
+            inlineData: {
+              mimeType: 'image/jpeg',
+              data: base64Data
+            }
+          });
+        }
+      }
+    }
+    userParts.push({ text: userMessage });
+
     const contents = [
       ...conversationHistory.map((msg) => {
         if (msg.parts) return msg;
@@ -12,12 +62,12 @@ export const sendMessage = async (apiKey, userMessage, conversationHistory = [])
       }),
       {
         role: 'user',
-        parts: [{ text: userMessage }]
+        parts: userParts
       }
     ];
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
